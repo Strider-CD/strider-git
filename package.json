@@ -1,0 +1,34 @@
+{
+  "name": "strider-git",
+  "version": "0.0.0",
+  "description": "Strider provider for git repositories",
+  "main": "worker.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Strider-CD/strider-git"
+  },
+  "keywords": [
+    "strider",
+    "plugin",
+    "provider",
+    "git"
+  ],
+  "author": "Jared Forsyth <jared@jaredforsyth.com>",
+  "license": "MIT",
+  "readmeFilename": "Readme.md",
+  "strider": {
+    "id": "git",
+    "title": "Git",
+    "type": "provider",
+    "webapp": "webapp.js",
+    "worker": "worker.js",
+    "inline_icon": "code-fork",
+    "panel": {
+      "src": "templates/project-config.html",
+      "controller": "GitController"
+    }
+  }
+}

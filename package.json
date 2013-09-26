@@ -30,5 +30,11 @@
       "src": "templates/project-config.html",
       "controller": "GitController"
     }
+  },
+  "dependencies": {
+    "gitane": "~0.3.1"
+  },
+  "devDependencies": {
+    "jshint": "~2.1.11"
   }
 }

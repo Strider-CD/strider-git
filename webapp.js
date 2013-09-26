@@ -1,4 +1,6 @@
 
+var utils = require('./lib')
+
 function sanitizeConfig(config) {
   if (!config.auth) return false
   return {
@@ -14,7 +16,26 @@ function sanitizeConfig(config) {
   }
 }
 
+
 module.exports = {
+  config: {
+    url: String,
+    display_url: String,
+    auth: {
+      type: { type: String, enum: ['ssh', 'https'] },
+      privkey: String,
+      pubkey: String,
+      username: String,
+      password: String
+    }
+  },
+  getBranches: function (userConfig, config, project, done) {
+    utils.getBranches(config, project.privkey, done)
+  },
+  getFile: function (config, filename) {
+    filename = filename || '.strider.json'
+    throw new Error('Not implemented')
+  },
   routes: function (app, context) {
     app.get('config', context.auth.projectAdmin, function (req, res) {
       res.send(req.providerConfig())

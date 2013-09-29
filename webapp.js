@@ -16,7 +16,6 @@ function sanitizeConfig(config) {
   }
 }
 
-
 module.exports = {
   config: {
     url: String,
@@ -32,9 +31,11 @@ module.exports = {
   getBranches: function (userConfig, config, project, done) {
     utils.getBranches(config, project.privkey, done)
   },
-  getFile: function (config, filename) {
-    filename = filename || '.strider.json'
+  // native git doesn't have a great way to just get a single file at an arbitrary revision
+  fastFile: false,
+  getFile: function (filename, ref, userConfig, config, project, done) {
     throw new Error('Not implemented')
+    // utils.gitcmd('git archive --remote=' + url + ' ' + (ref.fetch || ref.id) + ' .strider.json', ...);
   },
   routes: function (app, context) {
     app.get('config', context.auth.projectAdmin, function (req, res) {

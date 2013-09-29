@@ -50,15 +50,24 @@ function badCode(name, code) {
 }
 
 module.exports = {
+  init: function (dest, userConfig, config, job, done) {
+    return done(null, {
+      config: config,
+      userConfig: userConfig,
+      fetch: function (context, done) {
+        module.exports.fetch(dest, userConfig, config, job, context, done)
+      }
+    })
+  },
   fetch: function (dest, userConfig, config, job, context, done) {
     fs.exists(path.join(dest, '.git'), function (err, exists) {
       // if .git exists, pull, otherwise clone
       (exists ? pull : clone)(dest, config, job, context, function (exitCode) {
         if (exitCode) return done(badCode('Command', exitCode))
         // fetch the ref
-        if (job.ref.branch) {
+        if (job.ref.branch && !job.ref.fetch) {
           return context.cmd({
-            cmd: 'git checkout -qf ' + utils.shellEscape(job.ref.id),
+            cmd: 'git checkout -qf ' + utils.shellEscape(job.ref.id || job.ref.branch),
             cwd: dest
           }, function (exitCode) {
             done(exitCode && badCode('Checkout', exitCode))

@@ -32,7 +32,8 @@
     }
   },
   "dependencies": {
-    "gitane": "~0.3.1"
+    "gitane": "~0.3.1",
+    "shell-escape": "0.0.1"
   },
   "devDependencies": {
     "jshint": "~2.1.11"

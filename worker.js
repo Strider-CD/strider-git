@@ -31,10 +31,11 @@ function pull(dest, config, job, context, done) {
 function clone(dest, config, job, context, done) {
   if (config.auth.type === 'ssh') {
     var cmd = 'git clone --recursive ' + utils.sshUrl(config)[0] + ' .'
+    console.log('git clone', cmd, config.auth.privkey)
     if (job.ref.branch) {
       cmd += ' -b ' + job.ref.branch
     }
-    return utils.gitaneCmd(cmd, dest, config.auth.privkey || job.project.privkey, context, done)
+    return utils.gitaneCmd(cmd, dest, config.auth.privkey, context, done)
   }
   context.cmd({
     cmd: httpsCloneCmd(config),
@@ -60,6 +61,14 @@ module.exports = {
     })
   },
   fetch: function (dest, userConfig, config, job, context, done) {
+    if (config.auth.type === 'ssh' && !config.auth.privkey) {
+      for (var i=0; i<job.project.branches.length; i++) {
+        if (job.project.branches[i].name === 'master') {
+          config.auth.privkey = job.project.branches[i].privkey
+          break
+        }
+      }
+    }
     fs.exists(path.join(dest, '.git'), function (err, exists) {
       // if .git exists, pull, otherwise clone
       (exists ? pull : clone)(dest, config, job, context, function (exitCode) {
@@ -73,7 +82,7 @@ module.exports = {
             done(exitCode && badCode('Checkout', exitCode))
           })
         }
-        utils.gitCmd('git fetch origin ' + utils.shellEscape(job.ref.fetch), dest, config.auth, job.project.privkey, context, function (exitCode) {
+        utils.gitCmd('git fetch origin ' + utils.shellEscape(job.ref.fetch), dest, config.auth, context, function (exitCode) {
           if (exitCode) return done(badCode('Fetch ' + job.ref.fetch, exitCode))
           context.cmd({
             cmd: 'git checkout -qf FETCH_HEAD',

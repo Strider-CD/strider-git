@@ -51,12 +51,12 @@ function badCode(name, code) {
 }
 
 module.exports = {
-  init: function (dest, userConfig, config, job, done) {
+  init: function (dirs, userConfig, config, job, done) {
     return done(null, {
       config: config,
       userConfig: userConfig,
       fetch: function (context, done) {
-        module.exports.fetch(dest, userConfig, config, job, context, done)
+        module.exports.fetch(dirs.data, userConfig, config, job, context, done)
       }
     })
   },

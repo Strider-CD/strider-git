@@ -1,6 +1,8 @@
 
 var path = require('path')
   , fs = require('fs')
+  , spawn = require('child_process').spawn
+  , mkdirp = require('mkdirp')
 
   , utils = require('./lib')
 
@@ -19,21 +21,22 @@ function httpsCloneCmd(config, branch) {
   }
 }
 
-function pull(dest, config, job, context, done) {
+function pull(dest, config, context, done) {
   context.cmd({
     cmd: 'git reset --hard',
     cwd: dest
   }, function (exitCode) {
-    utils.gitCmd('git pull', dest, config.auth, job.project.privkey, context, done)
+    utils.gitCmd('git pull', dest, config.auth, context, done)
   })
 }
 
-function clone(dest, config, job, context, done) {
+function clone(dest, config, ref, cache, context, done) {
   if (config.auth.type === 'ssh') {
     var cmd = 'git clone --recursive ' + utils.sshUrl(config)[0] + ' .'
-    console.log('git clone', cmd, config.auth.privkey)
-    if (job.ref.branch) {
-      cmd += ' -b ' + job.ref.branch
+    if (ref.ref.branch) {
+      cmd += ' -b ' + ref.ref.branch
+      // this /only/ gets the one branch; so only use if we won't be caching
+      if (!cache) cmd += ' --single-branch'
     }
     return utils.gitaneCmd(cmd, dest, config.auth.privkey, context, done)
   }
@@ -60,39 +63,75 @@ module.exports = {
       }
     })
   },
-  fetch: function (dest, userConfig, config, job, context, done) {
-    if (config.auth.type === 'ssh' && !config.auth.privkey) {
-      for (var i=0; i<job.project.branches.length; i++) {
-        if (job.project.branches[i].name === 'master') {
-          config.auth.privkey = job.project.branches[i].privkey
-          break
-        }
-      }
+  fetch: fetch
+}
+
+function getMasterPrivKey(branches) {
+  for (var i=0; i<branches.length; i++) {
+    if (branches[i].name === 'master') {
+      return branches[i].privkey
     }
-    fs.exists(path.join(dest, '.git'), function (err, exists) {
-      // if .git exists, pull, otherwise clone
-      (exists ? pull : clone)(dest, config, job, context, function (exitCode) {
-        if (exitCode) return done(badCode('Command', exitCode))
-        // fetch the ref
-        if (job.ref.branch && !job.ref.fetch) {
-          return context.cmd({
-            cmd: 'git checkout -qf ' + utils.shellEscape(job.ref.id || job.ref.branch),
-            cwd: dest
-          }, function (exitCode) {
-            done(exitCode && badCode('Checkout', exitCode))
-          })
-        }
-        utils.gitCmd('git fetch origin ' + utils.shellEscape(job.ref.fetch), dest, config.auth, context, function (exitCode) {
-          if (exitCode) return done(badCode('Fetch ' + job.ref.fetch, exitCode))
-          context.cmd({
-            cmd: 'git checkout -qf FETCH_HEAD',
-            cwd: dest
-          }, function (exitCode) {
-            done(exitCode && badCode('Checkout', exitCode))
-          })
-        })
-      })
-    })
   }
 }
+
+function checkoutRef(dest, cmd, ref, done) {
+  return cmd({
+    cmd: 'git checkout -qf ' + utils.shellEscape(ref.id || ref.branch),
+    cwd: dest
+  }, function (exitCode) {
+    done(exitCode && badCode('Checkout', exitCode))
+  })
+}
+
+function fetch(dest, cached, config, job, context, done) {
+  if (config.auth.type === 'ssh' && !config.auth.privkey) {
+    config.auth.privkey = getMasterPrivKey(job.project.branches)
+  }
+  var get = pull
+    , pleaseClone = function () {
+        mkdirp(dest, function () {
+          clone(dest, config, job.ref, cached, context, updateCache)
+        })
+      }
+  if (!cached) return pleaseClone()
+
+  cached.get(dest, function (err) {
+    if (err) return pleaseClone()
+    // make sure .git exists
+    fs.exists(path.join(dest, '.git'), function (exists) {
+      if (exists) return pull(dest, config, context, updateCache)
+      spawn('rm', ['-rf', dest]).on('close', function (exitCode) {
+        pleaseClone()
+      })
+    })
+  })
+
+  function updateCache(exitCode) {
+    if (exitCode) return done(badCode('Command', exitCode))
+    if (!cached) return gotten()
+    cached.update(dest, gotten)
+  }
+
+  function gotten (err) {
+    if (err) return done(err)
+    // fetch the ref
+    if (job.ref.branch && !job.ref.fetch) {
+      return checkoutRef(dest, context.cmd, job.ref, done)
+    }
+    fetchRef(job.ref.fetch, dest, config.auth, context, done)
+  }
+}
+
+function fetchRef(what, dest, auth, context, done) {
+  utils.gitCmd('git fetch origin ' + utils.shellEscape(what), dest, auth, context, function (exitCode) {
+    if (exitCode) return done(badCode('Fetch ' + what, exitCode))
+    context.cmd({
+      cmd: 'git checkout -qf FETCH_HEAD',
+      cwd: dest
+    }, function (exitCode) {
+      done(exitCode && badCode('Checkout', exitCode))
+    })
+  })
+}
+
 

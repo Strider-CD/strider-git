@@ -99,7 +99,10 @@ function fetch(dest, cached, config, job, context, done) {
     if (err) return pleaseClone()
     // make sure .git exists
     fs.exists(path.join(dest, '.git'), function (exists) {
-      if (exists) return pull(dest, config, context, updateCache)
+      if (exists) {
+        context.comment('restored code from cache')
+        return pull(dest, config, context, updateCache)
+      }
       spawn('rm', ['-rf', dest]).on('close', function (exitCode) {
         pleaseClone()
       })

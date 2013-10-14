@@ -33,8 +33,8 @@ function pull(dest, config, context, done) {
 function clone(dest, config, ref, context, done) {
   if (config.auth.type === 'ssh') {
     var cmd = 'git clone --recursive ' + utils.sshUrl(config)[0] + ' .'
-    if (ref.ref.branch) {
-      cmd += ' -b ' + ref.ref.branch
+    if (ref.branch) {
+      cmd += ' -b ' + ref.branch
       // this /only/ gets the one branch; so only use if we won't be caching
       if (!config.cache) cmd += ' --single-branch'
     }

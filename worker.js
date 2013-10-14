@@ -30,13 +30,13 @@ function pull(dest, config, context, done) {
   })
 }
 
-function clone(dest, config, ref, cache, context, done) {
+function clone(dest, config, ref, context, done) {
   if (config.auth.type === 'ssh') {
     var cmd = 'git clone --recursive ' + utils.sshUrl(config)[0] + ' .'
     if (ref.ref.branch) {
       cmd += ' -b ' + ref.ref.branch
       // this /only/ gets the one branch; so only use if we won't be caching
-      if (!cache) cmd += ' --single-branch'
+      if (!config.cache) cmd += ' --single-branch'
     }
     return utils.gitaneCmd(cmd, dest, config.auth.privkey, context, done)
   }
@@ -83,19 +83,19 @@ function checkoutRef(dest, cmd, ref, done) {
   })
 }
 
-function fetch(dest, cached, config, job, context, done) {
+function fetch(dest, config, job, context, done) {
   if (config.auth.type === 'ssh' && !config.auth.privkey) {
     config.auth.privkey = getMasterPrivKey(job.project.branches)
   }
   var get = pull
     , pleaseClone = function () {
         mkdirp(dest, function () {
-          clone(dest, config, job.ref, cached, context, updateCache)
+          clone(dest, config, job.ref, context, updateCache)
         })
       }
-  if (!cached) return pleaseClone()
+  if (!config.cache) return pleaseClone()
 
-  cached.get(dest, function (err) {
+  context.cachier.get(dest, function (err) {
     if (err) return pleaseClone()
     // make sure .git exists
     fs.exists(path.join(dest, '.git'), function (exists) {
@@ -111,8 +111,8 @@ function fetch(dest, cached, config, job, context, done) {
 
   function updateCache(exitCode) {
     if (exitCode) return done(badCode('Command', exitCode))
-    if (!cached) return gotten()
-    cached.update(dest, gotten)
+    if (!config.cache) return gotten()
+    context.cachier.update(dest, gotten)
   }
 
   function gotten (err) {

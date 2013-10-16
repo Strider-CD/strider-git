@@ -112,6 +112,7 @@ function fetch(dest, config, job, context, done) {
   function updateCache(exitCode) {
     if (exitCode) return done(badCode('Command', exitCode))
     if (!config.cache) return gotten()
+    context.comment('saved code to cache')
     context.cachier.update(dest, gotten)
   }
 

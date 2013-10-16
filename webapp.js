@@ -33,15 +33,15 @@ module.exports = {
   },
   // native git doesn't have a great way to just get a single file at an arbitrary revision
   fastFile: false,
-  getFile: function (filename, ref, userConfig, config, project, done) {
-    throw new Error('Not implemented')
+  getFile: function (filename, ref, config, project, done) {
+    done(new Error('not implemented'));
     // utils.gitcmd('git archive --remote=' + url + ' ' + (ref.fetch || ref.id) + ' .strider.json', ...);
   },
   routes: function (app, context) {
-    app.get('config', context.auth.projectAdmin, function (req, res) {
+    app.get('config', context.auth.requireProjectAdmin, function (req, res) {
       res.send(req.providerConfig())
     })
-    app.put('config', context.auth.projectAdmin, function (req, res) {
+    app.put('config', context.auth.requireProjectAdmin, function (req, res) {
       // validate the config
       var config = sanitizeConfig(req.body)
       req.providerConfig(config, function (err) {

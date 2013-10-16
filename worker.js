@@ -54,12 +54,11 @@ function badCode(name, code) {
 }
 
 module.exports = {
-  init: function (dirs, userConfig, config, job, done) {
+  init: function (dirs, config, job, done) {
     return done(null, {
       config: config,
-      userConfig: userConfig,
       fetch: function (context, done) {
-        module.exports.fetch(dirs.data, userConfig, config, job, context, done)
+        module.exports.fetch(dirs.data, config, job, context, done)
       }
     })
   },

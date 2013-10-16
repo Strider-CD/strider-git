@@ -26,10 +26,7 @@
     "webapp": "webapp.js",
     "worker": "worker.js",
     "inline_icon": "code-fork",
-    "panel": {
-      "src": "templates/project-config.html",
-      "controller": "GitController"
-    }
+    "config": true
   },
   "dependencies": {
     "gitane": "~0.3.1",

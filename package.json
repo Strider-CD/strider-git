@@ -34,6 +34,7 @@
     "mkdirp": "~0.3.5"
   },
   "devDependencies": {
-    "jshint": "~2.1.11"
+    "jshint": "~2.3.0",
+    "mocha": "~1.13.0"
   }
 }

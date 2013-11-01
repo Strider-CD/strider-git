@@ -6,6 +6,14 @@ var path = require('path')
 
   , utils = require('./lib')
 
+function safespawn() {
+  var c = spawn.apply(null, arguments)
+  c.on('error', function (err) {
+    // suppress node errors
+  })
+  return c
+}
+
 function httpsCloneCmd(config, branch) {
   var urls = utils.httpsUrl(config)
     , screen = 'git clone --recursive ' + urls[1] + ' .'
@@ -102,7 +110,7 @@ function fetch(dest, config, job, context, done) {
         context.comment('restored code from cache')
         return pull(dest, config, context, updateCache)
       }
-      spawn('rm', ['-rf', dest]).on('close', function (exitCode) {
+      safespawn('rm', ['-rf', dest]).on('close', function (exitCode) {
         pleaseClone()
       })
     })

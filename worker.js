@@ -38,6 +38,25 @@ function pull(dest, config, context, done) {
   })
 }
 
+function gitVersion(next) {
+  var child = spawn('git', ['--version'])
+    , out = ''
+  child.stdout.setEncoding('utf8')
+  child.stderr.setEncoding('utf8')
+  child.stdout.on('data', function (data) {
+    out += data
+  })
+  child.stderr.on('data', function (data) {
+    out += data
+  })
+  child.on('close', function (code) {
+    if (code) return next(new Error('Failed to get git version: ' + out))
+    next(null, out)
+  })
+  child.on('error', function () {})
+}
+ 
+
 function clone(dest, config, ref, context, done) {
   if (config.auth.type === 'ssh') {
     var cmd = 'git clone --recursive ' + utils.sshUrl(config)[0] + ' .'

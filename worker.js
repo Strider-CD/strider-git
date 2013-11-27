@@ -7,8 +7,9 @@ var path = require('path')
   , utils = require('./lib')
 
 function safespawn() {
+  var c
   try {
-    var c = spawn.apply(null, arguments)
+    c = spawn.apply(null, arguments)
   } catch (e) {
     throw new Error('Failed to start command: ' + JSON.stringify([].slice.call(arguments)))
   }

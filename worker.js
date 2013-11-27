@@ -7,7 +7,11 @@ var path = require('path')
   , utils = require('./lib')
 
 function safespawn() {
-  var c = spawn.apply(null, arguments)
+  try {
+    var c = spawn.apply(null, arguments)
+  } catch (e) {
+    throw new Error('Failed to start command: ' + JSON.stringify([].slice.call(arguments)))
+  }
   c.on('error', function (err) {
     // suppress node errors
   })
@@ -39,7 +43,7 @@ function pull(dest, config, context, done) {
 }
 
 function gitVersion(next) {
-  var child = spawn('git', ['--version'])
+  var child = safespawn('git', ['--version'])
     , out = ''
   child.stdout.setEncoding('utf8')
   child.stderr.setEncoding('utf8')
@@ -114,7 +118,9 @@ function fetch(dest, config, job, context, done) {
     config.auth.privkey = getMasterPrivKey(job.project.branches)
   }
   var get = pull
+    , cloning = false
     , pleaseClone = function () {
+        cloning = true
         mkdirp(dest, function () {
           clone(dest, config, job.ref, context, updateCache)
         })
@@ -136,7 +142,7 @@ function fetch(dest, config, job, context, done) {
   })
 
   function updateCache(exitCode) {
-    if (exitCode) return done(badCode('Command', exitCode))
+    if (exitCode) return done(badCode('Git ' + (cloning ? 'clone' : 'pull'), exitCode))
     if (!config.cache) return gotten()
     context.comment('saved code to cache')
     context.cachier.update(dest, gotten)

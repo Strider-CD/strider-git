@@ -7,7 +7,7 @@ function sanitizeConfig(config) {
     url: config.url,
     display_url: config.display_url,
     auth: {
-      type: config.auth.type === 'ssh' ? 'ssh' : 'https',
+      type: config.auth.type,
       privkey: config.auth.privkey,
       pubkey: config.auth.pubkey,
       username: config.auth.username,
@@ -21,7 +21,7 @@ module.exports = {
     url: String,
     display_url: String,
     auth: {
-      type: { type: String, enum: ['ssh', 'https'] },
+      type: { type: String, enum: ['ssh', 'https', 'http'] },
       privkey: String,
       pubkey: String,
       username: String,

@@ -3,13 +3,14 @@
   <input required
          type="text"
          ng-model="config.url"
-         ng-pattern="/git:\/\/.+?/"
+         ng-pattern="/(git|http|https):\/\/.+?/"
          placeholder="git://example.com/my/repo.git">
 </label>
 <div class="auth-type">
   <h3>Auth type</h3>
   <div class="btn-group">
     <div class="btn" ng-model="config.auth.type" required btn-radio="'ssh'">SSH</div>
+    <div class="btn" ng-model="config.auth.type" required btn-radio="'http'">HTTP</div>
     <div class="btn" ng-model="config.auth.type" required btn-radio="'https'">HTTPS</div>
   </div>
   <div ng-show="config.auth.type === 'ssh'">
@@ -29,8 +30,8 @@
       </div>
     </div>
   </div>
-  <div ng-show="config.auth.type === 'https'">
-    <span class="help-text">Https auth</span>
+  <div ng-show="config.auth.type.indexOf('http') > -1">
+    <span class="help-text">Http(s) auth</span>
     <label>
       <input type="text"
              ng-required="config.auth.type === 'https'"

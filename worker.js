@@ -19,8 +19,8 @@ function safespawn() {
   return c
 }
 
-function httpsCloneCmd(config, branch) {
-  var urls = utils.httpsUrl(config)
+function httpCloneCmd(config, branch) {
+  var urls = utils.httpUrl(config)
     , screen = 'git clone --recursive ' + urls[1] + ' .'
     , args = ['clone', '--recursive', urls[0], '.']
   if (branch) {
@@ -73,7 +73,7 @@ function clone(dest, config, ref, context, done) {
     return utils.gitaneCmd(cmd, dest, config.auth.privkey, context, done)
   }
   context.cmd({
-    cmd: httpsCloneCmd(config),
+    cmd: httpCloneCmd(config),
     cwd: dest
   }, done)
 }

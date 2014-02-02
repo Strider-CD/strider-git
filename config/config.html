@@ -3,7 +3,6 @@
   <input required
          type="text"
          ng-model="config.url"
-         ng-pattern="/git:\/\/.+?/"
          placeholder="git://example.com/my/repo.git">
 </label>
 <div class="auth-type">
@@ -21,11 +20,11 @@
     <div class="row-fluid">
       <div class="span6">
         <label>Private Key</label>
-        <textarea ng-required="config.auth.type === 'ssh'" ng-model="config.auth.privkey"></textarea>
+        <textarea ng-model="config.auth.privkey"></textarea>
       </div>
       <div class="span6">
         <label>Public Key</label>
-        <textarea ng-required="config.auth.type === 'ssh'" ng-model="config.auth.pubkey"></textarea>
+        <textarea ng-model="config.auth.pubkey"></textarea>
       </div>
     </div>
   </div>

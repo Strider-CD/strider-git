@@ -1,8 +1,7 @@
 
 var path = require('path')
-  , fs = require('fs')
+  , fs = require('fs-extra')
   , spawn = require('child_process').spawn
-  , mkdirp = require('mkdirp')
 
   , utils = require('./lib')
 
@@ -122,7 +121,7 @@ function fetch(dest, config, job, context, done) {
     , cloning = false
     , pleaseClone = function () {
         cloning = true
-        mkdirp(dest, function () {
+        fs.mkdirp(dest, function () {
           clone(dest, config, job.ref, context, updateCache)
         })
       }
@@ -136,7 +135,7 @@ function fetch(dest, config, job, context, done) {
         context.comment('restored code from cache')
         return pull(dest, config, context, updateCache)
       }
-      safespawn('rm', ['-rf', dest]).on('close', function (exitCode) {
+      fs.remove(dest, function(err) {
         pleaseClone()
       })
     })

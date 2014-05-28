@@ -67,7 +67,7 @@ function clone(dest, config, ref, context, done) {
     if (ref.branch) {
       cmd += ' -b ' + ref.branch
       // this /only/ gets the one branch; so only use if we won't be caching
-      if (!config.cache) cmd += ' --single-branch'
+      if (!config.cache) cmd += ' --depth 1'
     }
     return utils.gitaneCmd(cmd, dest, config.auth.privkey, context, done)
   }

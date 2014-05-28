@@ -62,20 +62,27 @@ function gitVersion(next) {
  
 
 function clone(dest, config, ref, context, done) {
+  var git_version = parseFloat('1.0');
+  gitVersion(function(err,result){
+    var versionArray = result.split(" ");
+    if(versionArray[0] == 'git' && versionArray[1] == 'version')
+      git_version = parseFloat(versionArray[2]);
+    console.info("Git Version:"+git_version);
+  });
+
   if (config.auth.type === 'ssh') {
     var cmd = 'git clone --recursive ' + utils.sshUrl(config)[0] + ' .'
     if (ref.branch) {
       cmd += ' -b ' + ref.branch
       // this /only/ gets the one branch; so only use if we won't be caching
-      if (!config.cache) cmd += ' --single-branch'
+      if (!config.cache && git_version >= 1.8) cmd += ' --single-branch'
     }
     return utils.gitaneCmd(cmd, dest, config.auth.privkey, context, done)
   }
   context.cmd({
     cmd: httpCloneCmd(config),
     cwd: dest
-  }, done)
-}
+  }, done)}
 
 function badCode(name, code) {
   var e = new Error(name + ' failed with code ' + code)

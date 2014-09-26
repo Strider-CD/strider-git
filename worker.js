@@ -80,7 +80,7 @@ function clone(dest, config, ref, context, done) {
     return utils.gitaneCmd(cmd, dest, config.auth.privkey, context, done)
   }
   context.cmd({
-    cmd: httpCloneCmd(config),
+    cmd: httpCloneCmd(config, ref.branch),
     cwd: dest
   }, done)}
 

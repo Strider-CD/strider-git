@@ -1,11 +1,5 @@
-<div>
-  <h4>Caching</h4>
-  <label class="checkbox">
-    <input ng-model="config.cache" type="checkbox" ng-click="save()"> Cache the project data between runs
-  </label>
-</div>
+<h3>Clone URL</h3>
 <label>
-  <span>Url</span>
   <input required
          type="text"
          ng-model="config.url"
@@ -51,4 +45,11 @@
     </label>
   </div>
 </div>
+<h3>Caching</h3>
+<p>
+<small>This affects whether the project is checked out with a fresh 'git clone' each time or updated via a 'git pull'.</small>
+<label class="checkbox">
+  <input ng-model="config.cache" type="checkbox" ng-click="save()"> Cache the project data between runs
+</label>
+</p>
 <button class='btn btn-primary' ng-show='page === "config"' ng-click="save()" ng-disabled="saving">Save</button>

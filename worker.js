@@ -33,12 +33,12 @@ function httpCloneCmd(config, branch) {
   }
 }
 
-function pull(dest, config, context, done) {
-  context.cmd({
-    cmd: 'git reset --hard',
-    cwd: dest
-  }, function (exitCode) {
-    utils.gitCmd('git pull', dest, config.auth, context, done)
+function pull(dest, config, context, branch, done) {
+  utils.gitCmd('git fetch', dest, config.auth, context, function (exitCode) {
+    context.cmd({
+      cmd: 'git reset --hard origin/' + branch,
+      cwd: dest
+    }, done)
   })
 }
 
@@ -124,8 +124,7 @@ function fetch(dest, config, job, context, done) {
   if (config.auth.type === 'ssh' && !config.auth.privkey) {
     config.auth.privkey = getMasterPrivKey(job.project.branches)
   }
-  var get = pull
-    , cloning = false
+  var cloning = false
     , pleaseClone = function () {
         cloning = true
         fs.mkdirp(dest, function () {
@@ -140,7 +139,7 @@ function fetch(dest, config, job, context, done) {
     fs.exists(path.join(dest, '.git'), function (exists) {
       if (exists) {
         context.comment('restored code from cache')
-        return pull(dest, config, context, updateCache)
+        return pull(dest, config, context, job.ref.branch, updateCache)
       }
       fs.remove(dest, function(err) {
         pleaseClone()

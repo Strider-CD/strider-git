@@ -46,8 +46,7 @@ module.exports = {
       var config = sanitizeConfig(req.body)
       req.providerConfig(config, function (err) {
         if (err) {
-          res.status(500)
-          return res.send({errors: [err.message]})
+          return res.status(500).send({errors: [err.message]})
         }
         res.send({success: true, message: 'Saved git config!', config: config})
       })

@@ -1,36 +1,47 @@
-<h3>Clone URL</h3>
-<label>
-  <input required
-         type="text"
-         ng-model="config.url"
-         placeholder="[sshuser@]example.com/my/repo.git">
-</label>
+<label for="repo-url" class="bold-label">Repository URL (required)</label>
+<input required id="git-repo-url" type="text" ng-model="config.url"
+  placeholder="[sshuser@]example.com/my/repo.git">
+
+<div>
+  <h4>Caching</h4>
+  <label class="checkbox">
+    <input ng-model="config.cache" type="checkbox" ng-click="save()"> Cache the project data between runs
+  </label>
+</div>
+
 <div class="auth-type">
-  <h3>Auth type</h3>
-  <div class="btn-group">
-    <div class="btn" ng-model="config.auth.type" required btn-radio="'ssh'">SSH</div>
-    <div class="btn" ng-model="config.auth.type" required btn-radio="'http'">HTTP</div>
-    <div class="btn" ng-model="config.auth.type" required btn-radio="'https'">HTTPS</div>
+  <h4>Repository Authentication</h4>
+
+  <div class="btn-group control-group">
+    <div class="btn" ng-model="config.auth.type" btn-radio="'none'">None</div>
+    <div class="btn" ng-model="config.auth.type" btn-radio="'ssh'">SSH</div>
+    <div class="btn" ng-model="config.auth.type" btn-radio="'http'">HTTP</div>
+    <div class="btn" ng-model="config.auth.type" btn-radio="'https'">HTTPS</div>
   </div>
-  <div ng-show="config.auth.type === 'ssh'">
-    <h4>Ssh Keys</h4>
+
+  <div ng-show="config.auth.type === 'ssh'" class="control-group">
+    <h5>SSH Keys</h5>
+
     <span class="help-text">
       Leave these blank to use the project's private and public keys
       (you can find those under the "General" tab).
     </span>
-    <div class="row-fluid">
+
+    <div id="ssh-keys" class="row-fluid">
       <div class="span6">
-        <label>Private Key</label>
-        <textarea ng-model="config.auth.privkey"></textarea>
+        <label for="git-private-key" class="bold-label">Private Key</label>
+        <textarea id="git-private-key" ng-model="config.auth.privkey"></textarea>
       </div>
+
       <div class="span6">
-        <label>Public Key</label>
-        <textarea ng-model="config.auth.pubkey"></textarea>
+        <label for="git-public-key" class="bold-label">Public Key</label>
+        <textarea id="git-public-label" ng-model="config.auth.pubkey"></textarea>
       </div>
     </div>
   </div>
-  <div ng-show="config.auth.type.indexOf('http') > -1">
-    <span class="help-text">Http(s) auth</span>
+
+  <div ng-show="config.auth.type.indexOf('http') > -1" class="control-group">
+    <h5>HTTP/HTTPS</h5>
     <label>
       <input type="text"
              ng-required="config.auth.type === 'https'"
@@ -45,11 +56,5 @@
     </label>
   </div>
 </div>
-<h3>Caching</h3>
-<p>
-<small>This affects whether the project is checked out with a fresh 'git clone' each time or updated via a 'git pull'.</small>
-<label class="checkbox">
-  <input ng-model="config.cache" type="checkbox" ng-click="save()"> Cache the project data between runs
-</label>
-</p>
+
 <button class='btn btn-primary' ng-show='page === "config"' ng-click="save()" ng-disabled="saving">Save</button>

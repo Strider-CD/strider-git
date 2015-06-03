@@ -113,7 +113,7 @@ function getMasterPrivKey(branches) {
 
 function checkoutRef(dest, cmd, ref, done) {
   return cmd({
-    cmd: 'git checkout -qf ' + utils.shellEscape(ref.id || ref.branch),
+    cmd: 'git checkout --quiet --force ' + utils.shellEscape(ref.id || ref.branch),
     cwd: dest
   }, function (exitCode) {
     done(exitCode && badCode('Checkout', exitCode))
@@ -168,12 +168,10 @@ function fetchRef(what, dest, auth, context, done) {
   utils.gitCmd('git fetch origin ' + utils.shellEscape(what), dest, auth, context, function (exitCode) {
     if (exitCode) return done(badCode('Fetch ' + what, exitCode))
     context.cmd({
-      cmd: 'git checkout -qf FETCH_HEAD',
+      cmd: 'git checkout --quiet --force FETCH_HEAD',
       cwd: dest
     }, function (exitCode) {
       done(exitCode && badCode('Checkout', exitCode))
     })
   })
 }
-
-

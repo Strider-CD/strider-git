@@ -1,5 +1,6 @@
+'use strict';
 
-var utils = require('./lib')
+var utils = require('./lib');
 
 function sanitizeConfig(config) {
   if (!config.auth) return false
@@ -29,7 +30,7 @@ module.exports = {
     }
   },
   getBranches: function (userConfig, config, project, done) {
-    utils.getBranches(config, project.privkey, done)
+    utils.getBranches(config, project.privkey, done);
   },
   // native git doesn't have a great way to just get a single file at an arbitrary revision
   fastFile: false,
@@ -39,18 +40,18 @@ module.exports = {
   },
   routes: function (app, context) {
     app.get('config', context.auth.requireProjectAdmin, function (req, res) {
-      res.send(req.providerConfig())
-    })
+      res.send(req.providerConfig());
+    });
     app.put('config', context.auth.requireProjectAdmin, function (req, res) {
       // validate the config
-      var config = sanitizeConfig(req.body)
+      var config = sanitizeConfig(req.body);
       req.providerConfig(config, function (err) {
         if (err) {
-          return res.status(500).send({errors: [err.message]})
+          return res.status(500).send({errors: [err.message]});
         }
-        res.send({success: true, message: 'Saved git config!', config: config})
-      })
-    })
+        res.send({success: true, message: 'Saved git config!', config: config});
+      });
+    });
   }
-}
+};
 

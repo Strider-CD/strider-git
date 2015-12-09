@@ -31,7 +31,8 @@
   "dependencies": {
     "gitane": "~0.3.1",
     "shell-escape": "0.0.1",
-    "fs-extra": "~0.8.1"
+    "fs-extra": "~0.8.1",
+    "strider-docker-gitane-camo": "~0.0.1"
   },
   "devDependencies": {
     "jshint": "~2.3.0",

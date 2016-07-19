@@ -4,7 +4,8 @@
   "description": "Strider provider for git repositories",
   "main": "worker.js",
   "scripts": {
-    "test": "make test"
+    "lint": "eslint *.js lib",
+    "test": "npm run lint && mocha -R spec"
   },
   "repository": {
     "type": "git",

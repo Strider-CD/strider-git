@@ -14,7 +14,7 @@ function sanitizeConfig(config) {
       username: config.auth.username,
       password: config.auth.password
     }
-  }
+  };
 }
 
 module.exports = {

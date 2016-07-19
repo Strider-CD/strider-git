@@ -11,10 +11,11 @@ function safespawn() {
   try {
     process = spawn.apply(null, arguments);
   } catch (e) {
-    throw new Error('Failed to start command: ' + JSON.stringify([].slice.call(arguments)))
+    throw new Error('Failed to start command: ' + JSON.stringify([].slice.call(arguments)));
   }
   process.on('error', function (err) {
     // suppress node errors
+    debug(err);
   });
   return process;
 }
@@ -35,12 +36,12 @@ function httpCloneCmd(config, branch) {
 }
 
 function pull(dest, config, context, branch, done) {
-  utils.gitCmd('git fetch', dest, config.auth, context, function (exitCode) {
+  utils.gitCmd('git fetch', dest, config.auth, context, function () {
     context.cmd({
       cmd: 'git reset --hard origin/' + branch,
       cwd: dest
     }, done);
-  })
+  });
 }
 
 function gitVersion(next) {
@@ -102,7 +103,7 @@ module.exports = {
       fetch: function (context, done) {
         module.exports.fetch(dirs.data, config, job, context, done);
       }
-    })
+    });
   },
   fetch: fetch
 };
@@ -134,7 +135,7 @@ function fetch(dest, config, job, context, done) {
     cloning = true;
     fs.mkdirp(dest, function () {
       clone(dest, config, job.ref, context, updateCache);
-    })
+    });
   }
 
   if (!config.cache) return pleaseClone();
@@ -147,7 +148,7 @@ function fetch(dest, config, job, context, done) {
         context.comment('restored code from cache');
         return pull(dest, config, context, job.ref.branch, updateCache);
       }
-      fs.remove(dest, function (err) {
+      fs.remove(dest, function () {
         pleaseClone();
       });
     });

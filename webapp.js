@@ -3,7 +3,7 @@
 var utils = require('./lib');
 
 function sanitizeConfig(config) {
-  if (!config.auth) return false
+  if (!config.auth) return false;
   return {
     url: config.url,
     display_url: config.display_url,
@@ -22,7 +22,7 @@ module.exports = {
     url: String,
     display_url: String,
     auth: {
-      type: { type: String, enum: ['ssh', 'https', 'http'] },
+      type: {type: String, enum: ['ssh', 'https', 'http']},
       privkey: String,
       pubkey: String,
       username: String,

@@ -1,7 +1,8 @@
 'use strict';
 
-var path = require('path');
+var debug = require('debug')('strider-git:worker');
 var fs = require('fs-extra');
+var path = require('path');
 var spawn = require('child_process').spawn;
 var utils = require('./lib');
 
@@ -57,18 +58,19 @@ function gitVersion(next) {
     if (code) return next(new Error('Failed to get git version: ' + out));
     next(null, out);
   });
-  child.on('error', function () {});
+  child.on('error', function () {
+  });
 }
- 
+
 
 function clone(dest, config, ref, context, done) {
   var git_version = parseFloat('1.0');
-  gitVersion(function(err,result){
+  gitVersion(function (err, result) {
     var versionArray = result.split(' ');
-    if(versionArray[0] == 'git' && versionArray[1] == 'version') {
+    if (versionArray[0] == 'git' && versionArray[1] == 'version') {
       git_version = parseFloat(versionArray[2]);
     }
-    console.info('Git Version:'+git_version);
+    debug('Git Version:' + git_version);
   });
 
   if (config.auth.type === 'ssh') {
@@ -106,7 +108,7 @@ module.exports = {
 };
 
 function getMasterPrivKey(branches) {
-  for (var i=0; i<branches.length; i++) {
+  for (var i = 0; i < branches.length; i++) {
     if (branches[i].name === 'master') {
       return branches[i].privkey;
     }
@@ -127,12 +129,14 @@ function fetch(dest, config, job, context, done) {
     config.auth.privkey = getMasterPrivKey(job.project.branches);
   }
   var cloning = false;
+
   function pleaseClone() {
     cloning = true;
     fs.mkdirp(dest, function () {
       clone(dest, config, job.ref, context, updateCache);
     })
   }
+
   if (!config.cache) return pleaseClone();
 
   context.cachier.get(dest, function (err) {
@@ -143,7 +147,7 @@ function fetch(dest, config, job, context, done) {
         context.comment('restored code from cache');
         return pull(dest, config, context, job.ref.branch, updateCache);
       }
-      fs.remove(dest, function(err) {
+      fs.remove(dest, function (err) {
         pleaseClone();
       });
     });
@@ -160,7 +164,7 @@ function fetch(dest, config, job, context, done) {
     context.cachier.update(dest, gotten);
   }
 
-  function gotten (err) {
+  function gotten(err) {
     if (err) {
       return done(err);
     }

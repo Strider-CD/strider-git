@@ -1,1 +1,5 @@
-node_modules
+# IntelliJ IDEA project files
+.idea/*
+!.idea/codeStyleSettings.xml
+
+node_modules/

@@ -11,7 +11,7 @@ function safespawn() {
   try {
     process = spawn.apply(null, arguments);
   } catch (e) {
-    throw new Error('Failed to start command: ' + JSON.stringify([].slice.call(arguments)));
+    throw new Error(`Failed to start command: ${JSON.stringify([].slice.call(arguments))}`);
   }
   process.on('error', function (err) {
     // suppress node errors
@@ -22,11 +22,11 @@ function safespawn() {
 
 function httpCloneCmd(config, branch) {
   var urls = utils.httpUrl(config);
-  var screen = 'git clone --recursive ' + urls[1] + ' .';
+  var screen = `git clone --recursive ${urls[1]} .`;
   var args = ['clone', '--recursive', urls[0], '.'];
   if (branch) {
     args = args.concat(['--branch', branch]);
-    screen += ' --branch ' + branch;
+    screen += ` --branch ${branch}`;
   }
   return {
     command: 'git',
@@ -38,7 +38,7 @@ function httpCloneCmd(config, branch) {
 function pull(dest, config, context, branch, done) {
   utils.gitCmd('git fetch', dest, config.auth, context, function () {
     context.cmd({
-      cmd: 'git reset --hard origin/' + branch,
+      cmd: `git reset --hard origin/${branch}`,
       cwd: dest
     }, done);
   });
@@ -56,7 +56,7 @@ function gitVersion(next) {
     out += data;
   });
   child.on('close', function (code) {
-    if (code) return next(new Error('Failed to get git version: ' + out));
+    if (code) return next(new Error(`Failed to get git version: ${out}`));
     next(null, out);
   });
   child.on('error', function () {
@@ -71,13 +71,13 @@ function clone(dest, config, ref, context, done) {
     if (versionArray[0] == 'git' && versionArray[1] == 'version') {
       git_version = parseFloat(versionArray[2]);
     }
-    debug('Git Version:' + git_version);
+    debug(`Git Version:${git_version}`);
   });
 
   if (config.auth.type === 'ssh') {
-    var cmd = 'git clone --recursive ' + utils.sshUrl(config)[0] + ' .';
+    var cmd = `git clone --recursive ${utils.sshUrl(config)[0]} .`;
     if (ref.branch) {
-      cmd += ' --branch ' + ref.branch;
+      cmd += ` --branch ${ref.branch}`;
       // this /only/ gets the one branch; so only use if we won't be caching
       if (!config.cache && git_version >= 1.8) cmd += ' --single-branch';
     }
@@ -90,7 +90,7 @@ function clone(dest, config, ref, context, done) {
 }
 
 function badCode(name, code) {
-  var e = new Error(name + ' failed with code ' + code);
+  var e = new Error(`${name} failed with code ${code}`);
   e.code = code;
   e.exitCode = code;
   return e;
@@ -118,7 +118,7 @@ function getMasterPrivKey(branches) {
 
 function checkoutRef(dest, cmd, ref, done) {
   return cmd({
-    cmd: 'git checkout --quiet --force ' + utils.shellEscape(ref.id || ref.branch),
+    cmd: `git checkout --quiet --force ${utils.shellEscape(ref.id || ref.branch)}`,
     cwd: dest
   }, function (exitCode) {
     done(exitCode && badCode('Checkout', exitCode));
@@ -156,7 +156,7 @@ function fetch(dest, config, job, context, done) {
 
   function updateCache(exitCode) {
     if (exitCode) {
-      return done(badCode('Git ' + (cloning ? 'clone' : 'pull'), exitCode));
+      return done(badCode(`Git ${(cloning ? 'clone' : 'pull')}`, exitCode));
     }
     if (!config.cache) {
       return gotten();
@@ -178,9 +178,9 @@ function fetch(dest, config, job, context, done) {
 }
 
 function fetchRef(what, dest, auth, context, done) {
-  utils.gitCmd('git fetch origin ' + utils.shellEscape(what), dest, auth, context, function (exitCode) {
+  utils.gitCmd(`git fetch origin ${utils.shellEscape(what)}`, dest, auth, context, function (exitCode) {
     if (exitCode) {
-      return done(badCode('Fetch ' + what, exitCode));
+      return done(badCode(`Fetch ${what}`, exitCode));
     }
     context.cmd({
       cmd: 'git checkout --quiet --force FETCH_HEAD',

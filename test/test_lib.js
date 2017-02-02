@@ -7,13 +7,13 @@ describe('lib functions', function () {
   describe('.sshUrl', function () {
     it('should preserve a full scp ssh url', function () {
       var url = 'git@git.git:git/git.git';
-      var resultUrl = "'git@git.git:git/git.git'";
+      var resultUrl = 'git@git.git:git/git.git';
       expect(lib.sshUrl({url: url})[0]).to.equal(resultUrl);
     });
 
     it('should sshify a git url', function () {
       var url = 'git://one.com/two.git';
-      var ssh = "'git@one.com:two.git'";
+      var ssh = 'git@one.com:two.git';
       expect(lib.sshUrl({url: url})[0]).to.equal(ssh);
     });
 

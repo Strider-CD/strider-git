@@ -36,7 +36,7 @@
     "debug": "^2.2.0",
     "fs-extra": "^1.0.0",
     "gitane": "~0.3.1",
-    "shell-escape": "^0.2.0",
+    "shell-escape": "0.0.1",
     "strider-docker-gitane-camo": "~0.0.1"
   },
   "devDependencies": {

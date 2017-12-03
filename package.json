@@ -1,6 +1,6 @@
 {
   "name": "strider-git",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Strider provider for git repositories",
   "main": "worker.js",
   "scripts": {

@@ -11,7 +11,9 @@ function safespawn() {
   try {
     process = spawn.apply(null, arguments);
   } catch (e) {
-    throw new Error(`Failed to start command: ${JSON.stringify([].slice.call(arguments))}`);
+    throw new Error(
+      `Failed to start command: ${JSON.stringify([].slice.call(arguments))}`
+    );
   }
   process.on('error', function (err) {
     // suppress node errors
@@ -31,16 +33,19 @@ function httpCloneCmd(config, branch) {
   return {
     command: 'git',
     args: args,
-    screen: screen
+    screen: screen,
   };
 }
 
 function pull(dest, config, context, branch, done) {
   utils.gitCmd('git fetch', dest, config.auth, context, function () {
-    context.cmd({
-      cmd: `git reset --hard origin/${branch}`,
-      cwd: dest
-    }, done);
+    context.cmd(
+      {
+        cmd: `git reset --hard origin/${branch}`,
+        cwd: dest,
+      },
+      done
+    );
   });
 }
 
@@ -59,32 +64,30 @@ function gitVersion(next) {
     if (code) return next(new Error(`Failed to get git version: ${out}`));
     next(null, out);
   });
-  child.on('error', function () {
-  });
+  child.on('error', function () {});
 }
-
 
 function clone(dest, config, ref, context, done) {
   var git_version = parseFloat('1.0');
-  
+
   gitVersion(function (err, result) {
     if (err) {
       debug('Git Version Error:', err);
       return done(err);
     }
-    
+
     var versionArray = result.split(' ');
-    
+
     if (versionArray[0] == 'git' && versionArray[1] == 'version') {
       git_version = parseFloat(versionArray[2]);
     }
-    
+
     debug(`Git Version:${git_version}`);
   });
 
   if (config.auth.type === 'ssh') {
     var cmd = `git clone --recursive ${utils.sshUrl(config)[0]} .`;
-    
+
     if (ref.branch) {
       cmd += ` --branch ${ref.branch}`;
       // this /only/ gets the one branch; so only use if we won't be caching
@@ -92,14 +95,17 @@ function clone(dest, config, ref, context, done) {
         cmd += ' --single-branch';
       }
     }
-    
+
     return utils.gitaneCmd(cmd, dest, config.auth.privkey, context, done);
   }
-  
-  context.cmd({
-    cmd: httpCloneCmd(config, ref.branch),
-    cwd: dest
-  }, done);
+
+  context.cmd(
+    {
+      cmd: httpCloneCmd(config, ref.branch),
+      cwd: dest,
+    },
+    done
+  );
 }
 
 function badCode(name, code) {
@@ -115,10 +121,10 @@ module.exports = {
       config: config,
       fetch: function (context, done) {
         module.exports.fetch(dirs.data, config, job, context, done);
-      }
+      },
     });
   },
-  fetch: fetch
+  fetch: fetch,
 };
 
 function getMasterPrivKey(branches) {
@@ -130,12 +136,17 @@ function getMasterPrivKey(branches) {
 }
 
 function checkoutRef(dest, cmd, ref, done) {
-  return cmd({
-    cmd: `git checkout --quiet --force ${utils.shellEscape(ref.id || ref.branch)}`,
-    cwd: dest
-  }, function (exitCode) {
-    done(exitCode && badCode('Checkout', exitCode));
-  });
+  return cmd(
+    {
+      cmd: `git checkout --quiet --force ${utils.shellEscape(
+        ref.id || ref.branch
+      )}`,
+      cwd: dest,
+    },
+    function (exitCode) {
+      done(exitCode && badCode('Checkout', exitCode));
+    }
+  );
 }
 
 function fetch(dest, config, job, context, done) {
@@ -169,7 +180,7 @@ function fetch(dest, config, job, context, done) {
 
   function updateCache(exitCode) {
     if (exitCode) {
-      return done(badCode(`Git ${(cloning ? 'clone' : 'pull')}`, exitCode));
+      return done(badCode(`Git ${cloning ? 'clone' : 'pull'}`, exitCode));
     }
     if (!config.cache) {
       return gotten();
@@ -191,15 +202,24 @@ function fetch(dest, config, job, context, done) {
 }
 
 function fetchRef(what, dest, auth, context, done) {
-  utils.gitCmd(`git fetch origin ${utils.shellEscape(what)}`, dest, auth, context, function (exitCode) {
-    if (exitCode) {
-      return done(badCode(`Fetch ${what}`, exitCode));
+  utils.gitCmd(
+    `git fetch origin ${utils.shellEscape(what)}`,
+    dest,
+    auth,
+    context,
+    function (exitCode) {
+      if (exitCode) {
+        return done(badCode(`Fetch ${what}`, exitCode));
+      }
+      context.cmd(
+        {
+          cmd: 'git checkout --quiet --force FETCH_HEAD',
+          cwd: dest,
+        },
+        function (exitCode) {
+          done(exitCode && badCode('Checkout', exitCode));
+        }
+      );
     }
-    context.cmd({
-      cmd: 'git checkout --quiet --force FETCH_HEAD',
-      cwd: dest
-    }, function (exitCode) {
-      done(exitCode && badCode('Checkout', exitCode));
-    });
-  });
+  );
 }

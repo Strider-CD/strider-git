@@ -18,11 +18,10 @@
     "git"
   ],
   "engines": {
-    "node": ">=4.2"
+    "node": ">=10.13.0"
   },
   "author": "Jared Forsyth <jared@jaredforsyth.com>",
   "license": "MIT",
-  "readmeFilename": "Readme.md",
   "strider": {
     "id": "git",
     "title": "Git",
@@ -33,16 +32,15 @@
     "config": true
   },
   "dependencies": {
-    "debug": "^2.2.0",
-    "fs-extra": "^1.0.0",
+    "debug": "^4.0.0",
+    "fs-extra": "^9.0.0",
     "gitane": "~0.3.1",
     "shell-escape": "0.0.1",
     "strider-docker-gitane-camo": "~0.0.1"
   },
   "devDependencies": {
-    "eslint": "^3.1.1",
+    "eslint": "^7.0.0",
     "expect.js": "^0.3.1",
-    "jshint": "^2.9.4",
-    "mocha": "^3.1.2"
+    "mocha": "^8.0.0"
   }
 }
